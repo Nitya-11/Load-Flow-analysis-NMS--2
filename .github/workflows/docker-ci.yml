@@ -1,0 +1,24 @@
+name: Smart Grid Docker CI
+
+on:
+ push:
+ branches:
+     - main
+
+jobs:
+  build:
+ runs-on: ubuntu-latest
+
+steps:
+  - name: Checkout Repository
+    uses: actions/checkout@v4
+
+  - name: Build Docker Containers
+    run: docker compose build
+
+  - name: Start Containers
+    run: docker compose up -d
+
+  - name: Show Running Containers
+    run: docker ps
+
