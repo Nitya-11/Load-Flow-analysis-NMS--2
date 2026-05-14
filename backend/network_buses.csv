@@ -1,0 +1,9 @@
+bus_id,bus_name,kv,zone,bus_type
+0,Substation,11,Zone-N,Legacy
+1,FeederN1,11,Zone-N,Smart
+2,FeederN2,11,Zone-N,Smart
+3,DT_1,0.415,Zone-N,Legacy
+4,DT_2,0.415,Zone-S,Smart
+5,FeederS1,11,Zone-S,Smart
+6,FeederS2,11,Zone-S,Smart
+7,DTLV Bus,0.4,Zone-S,Legacy

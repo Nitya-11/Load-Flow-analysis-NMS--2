@@ -1,0 +1,61 @@
+services:
+
+  # ─── PostgreSQL Database ──────────────────────
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: mydb
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    healthcheck:                          
+      test: ["CMD-SHELL", "pg_isready -U myuser -d mydb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ─── Django Backend ───────────────────────────
+  backend:
+    build: ./backend
+    command: >
+      sh -c "python manage.py migrate &&
+      python manage.py runserver 0.0.0.0:8001"
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8002:8001"
+    environment:
+      - DB_NAME=mydb
+      - DB_USER=myuser
+      - DB_PASSWORD=mypassword
+      - DB_HOST=db
+      - DB_PORT=5432
+    depends_on:
+      db:                                 
+        condition: service_healthy
+    healthcheck:                          
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8001/api/buses/')\""]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  # ─── React Frontend ───────────────────────────
+  frontend:
+    build: ./frontend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "5174:5173"
+    environment:
+      - VITE_API_URL=http://localhost:8002
+    depends_on:
+      backend:                            
+        condition: service_healthy
+
+volumes:
+  postgres_data:
